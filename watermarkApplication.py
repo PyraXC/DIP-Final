@@ -23,9 +23,16 @@ class Application(EasyFrame):
         self.blankImg.save("blankImg.png")
 
         self.imageNameText = self.addTextField("", row=0, column=0,sticky="NESW")
+        self.wmNameText = self.addTextField("", row=1, column=0, sticky="NESW")
         self.openImageButton = self.addButton(text="Open Image", row=0,
                                               column=1, command=self.openImage)
-        self.imageList.append(self.addLabel(text="", row=1, column=2))
+        self.watermarkButton = self.addButton(text="Add Watermark", row=1,
+                                              column=1,
+                                              command=self.watermarkHelper)
+        self.showWMButton = self.addButton(text="Show Watermark", row=2,
+                                           column=1,
+                                           command=self.showWatermarkHelper)
+        self.imageList.append(self.addLabel(text="", row=3, column=2))
         self.photo = PhotoImage(file="blankImg.png")
         self.imageList[0]["image"] = self.photo
 
@@ -34,6 +41,29 @@ class Application(EasyFrame):
         print(self.imageName)
 
         self.photo = PhotoImage(file=self.imageName)
+        self.imageList[0]["image"] = self.photo
+
+    def watermarkHelper(self):
+        self.wtmk = Image.open(self.wmNameText.getText())
+        self.wtmk.convert("RGB")
+        self.bits = 3
+        self.img = Image.open(self.imageName)
+
+        watermark.waterMark(self.img, self.wtmk, self.bits)
+
+        self.photo = PhotoImage(file="watermarkedImg.png")
+        self.imageList[0]["image"] = self.photo
+
+    def showWatermarkHelper(self):
+        self.wtmk = Image.open(self.wmNameText.getText())
+        self.wtmk.convert("RGB")
+        self.bits = 3
+        self.img = Image.open(self.imageName)
+
+        encode = watermark.waterMark(self.img, self.wtmk, self.bits)
+        watermark.showWatermark(encode, self.wtmk.size, self.bits)
+
+        self.photo = PhotoImage(file="watermarkedImg.png")
         self.imageList[0]["image"] = self.photo
 
 def main():      

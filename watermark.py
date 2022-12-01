@@ -14,6 +14,8 @@ def createImage(data, img, size, wtmks):
             if x < wtmks[0] and y < wtmks[1]:
                 image[x, y] = data[i]
                 i+=1
+
+    img.save("watermarkedImg.png")
     return img
 
 def mostSigBits(num, bits):
@@ -42,7 +44,6 @@ def waterMark(img, wtmk, bits):
     px_hide = wtmk.load()
     for row in range(wtmkx):
         for col in range(wtmky):
-            print(px_hide[row, col])
             r, g, b = px_hide[row, col]
             r = mostSigBits(r, bits)
             g = mostSigBits(g, bits)
@@ -58,7 +59,8 @@ def waterMark(img, wtmk, bits):
     return createImage(temp, img, (imgx, imgy),  (wtmkx, wtmky))
 
 def showWatermark(img, wtmks, bits):
-    width, height = img.size
+    width = img.size[0]
+    height = img.size[1]
     image = img.load()
 
     temp = []
@@ -81,14 +83,14 @@ def showWatermark(img, wtmks, bits):
     return createImage(temp, img, img.size, wtmks)
             
 def main():
-    img = Image.open("lena_color_512.png")
-    wtmk = Image.open("Img3-8a.png")
-    #wtmk = wtmk.convert("RGB")
+    wtmk = Image.open("dg_logo.png")
+    wtmk.convert("RGB")
+    img = Image.open("thumbnail.png")
     bits = 3
-    encode = waterMark(img, wtmk, bits)
-    encode.show()
-    decode = showWatermark(encode, wtmk.size, bits)
-    decode.show()
+    #encode = waterMark(img, wtmk, bits)
+    #encode.show()
+    #decode = showWatermark(encode, wtmk.size, bits)
+    #decode.show()
 
 if "__main__":
     main()
