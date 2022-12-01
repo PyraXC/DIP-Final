@@ -40,7 +40,11 @@ class Application(EasyFrame):
         self.imageName = self.imageNameText.getText()
         print(self.imageName)
 
-        self.photo = PhotoImage(file=self.imageName)
+        self.resized_image = Image.open(self.imageName)
+        self.resized_image.thumbnail((1000,1000), Image.Resampling.LANCZOS)
+        self.resized_image.save("ImgResize.png")
+        
+        self.photo = PhotoImage(file="ImgResize.png")
         self.imageList[0]["image"] = self.photo
 
     def watermarkHelper(self):
@@ -51,7 +55,11 @@ class Application(EasyFrame):
 
         watermark.waterMark(self.img, self.wtmk, self.bits)
 
-        self.photo = PhotoImage(file="watermarkedImg.png")
+        self.resized_image = Image.open("watermarkedImg.png")
+        self.resized_image.thumbnail((1000,1000), Image.Resampling.LANCZOS)
+        self.resized_image.save("ImgResize.png")
+
+        self.photo = PhotoImage(file="ImgResize.png")
         self.imageList[0]["image"] = self.photo
 
     def showWatermarkHelper(self):
@@ -63,7 +71,11 @@ class Application(EasyFrame):
         encode = watermark.waterMark(self.img, self.wtmk, self.bits)
         watermark.showWatermark(encode, self.wtmk.size, self.bits)
 
-        self.photo = PhotoImage(file="watermarkedImg.png")
+        self.resized_image = Image.open("watermarkedImg.png")
+        self.resized_image.thumbnail((1000,1000), Image.Resampling.LANCZOS)
+        self.resized_image.save("ImgResize.png")
+
+        self.photo = PhotoImage(file="ImgResize.png")
         self.imageList[0]["image"] = self.photo
 
 def main():      
