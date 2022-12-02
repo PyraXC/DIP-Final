@@ -1,6 +1,7 @@
 from PIL import Image
 from breezypythongui import EasyFrame
 from tkinter import PhotoImage
+from tkinter import filedialog
 import watermark
 import os.path
 
@@ -12,6 +13,8 @@ class Application(EasyFrame):
 
         self.imageList = []
         self.imageName = ""
+        self.wmName = ""
+        self.splWord = "/"
 
         self.blankImg = Image.new("RGB", (600,600))
         self.px_out = self.blankImg.load()
@@ -22,24 +25,28 @@ class Application(EasyFrame):
 
         self.blankImg.save("blankImg.png")
 
-        self.imageNameText = self.addTextField("", row=0, column=0,sticky="NESW")
-        self.wmNameText = self.addTextField("", row=1, column=0, sticky="NESW")
+        self.imageNameButton = self.addButton(text="Browse for Image File", row=0, column=0,
+                                            command=self.browseImgFiles)
+        self.wmNameButton = self.addButton(text="Browse for Watermark File", row=1, column=0,
+                                         command=self.browseWmFiles)
+
+        self.imageNameLabel = self.addLabel(text="", row=0, column=1, sticky="NESW")
+        self.wmNameLabel = self.addLabel(text="", row=1, column=1, sticky="NESW")
+        
         self.openImageButton = self.addButton(text="Open Image", row=0,
-                                              column=1, command=self.openImage)
+                                              column=2, command=self.openImage)
         self.watermarkButton = self.addButton(text="Add Watermark", row=1,
-                                              column=1,
+                                              column=2,
                                               command=self.watermarkHelper)
         self.showWMButton = self.addButton(text="Show Watermark", row=2,
-                                           column=1,
+                                           column=2,
                                            command=self.showWatermarkHelper)
-        self.imageList.append(self.addLabel(text="", row=3, column=2))
+        
+        self.imageList.append(self.addLabel(text="", row=3, column=3))
         self.photo = PhotoImage(file="blankImg.png")
         self.imageList[0]["image"] = self.photo
 
     def openImage(self):
-        self.imageName = self.imageNameText.getText()
-        print(self.imageName)
-
         self.resized_image = Image.open(self.imageName)
         self.resized_image.thumbnail((1000,1000), Image.Resampling.LANCZOS)
         self.resized_image.save("ImgResize.png")
@@ -48,7 +55,7 @@ class Application(EasyFrame):
         self.imageList[0]["image"] = self.photo
 
     def watermarkHelper(self):
-        self.wtmk = Image.open(self.wmNameText.getText())
+        self.wtmk = Image.open(self.wmName)
         self.wtmk.convert("RGB")
         self.bits = 3
         self.img = Image.open(self.imageName)
@@ -63,7 +70,7 @@ class Application(EasyFrame):
         self.imageList[0]["image"] = self.photo
 
     def showWatermarkHelper(self):
-        self.wtmk = Image.open(self.wmNameText.getText())
+        self.wtmk = Image.open(self.wmName)
         self.wtmk.convert("RGB")
         self.bits = 3
         self.img = Image.open(self.imageName)
@@ -77,6 +84,25 @@ class Application(EasyFrame):
 
         self.photo = PhotoImage(file="ImgResize.png")
         self.imageList[0]["image"] = self.photo
+
+    def browseImgFiles(self):
+        self.imageName = filedialog.askopenfilename(initialdir = "/", title="Selecct a File",
+                                                   filetypes = (("Image files",
+                                                                 "*.png *.jpeg"),
+                                                                ("all files", "*.")))
+
+        self.res = self.imageName.split(self.splWord, 15)
+        self.imageNameLabel.configure(text="File: "+self.res[-1])
+        
+    def browseWmFiles(self):
+        self.wmName = filedialog.askopenfilename(initialdir = "/", title="Selecct a File",
+                                                   filetypes = (("Image files",
+                                                                 "*.png *.jpeg"),
+                                                                ("all files", "*.")))
+        
+        self.res = self.wmName.split(self.splWord, 15)
+        self.imageNameLabel.configure(text="Image File: "+self.res[-1])
+        self.wmNameLabel.configure(text="Watermark File: "+self.res[-1])
 
 def main():      
     Application().mainloop()
