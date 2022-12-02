@@ -117,6 +117,5 @@ def main():
     #encode.show()
     #decode = showWatermark(encode, wtmk.size, bits)
     #decode.show()
+    ''
 
-if __name__ == "__main__":
-    main()
