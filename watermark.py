@@ -47,7 +47,6 @@ def toRGB(img):
         for y in range(img.size[1]):
             temp = image[x,y]
             rgb[x,y] = (temp, temp, temp)
-    #print(rgb[0,0])
     return RGB
 
 def waterMark(img, wtmk, bits):
@@ -109,15 +108,15 @@ def showWatermark(img, wtmks, bits):
     return createImage(temp, img, img.size, wtmks)
             
 def main():
-    wtmk = Image.open("lena_gray_512.png")
+    #wtmk = Image.open("lena_gray_512.png")
     #wtmk.convert("RGB")
-    img = Image.open("thumbnail.png")
+    #img = Image.open("thumbnail.png")
     #img.convert("RGB")
-    bits = 3
-    encode = waterMark(img, wtmk, bits)
-    encode.show()
-    decode = showWatermark(encode, wtmk.size, bits)
-    decode.show()
+    #bits = 3
+    #encode = waterMark(img, wtmk, bits)
+    #encode.show()
+    #decode = showWatermark(encode, wtmk.size, bits)
+    #decode.show()
 
-if "__main__":
+if __name__ == "__main__":
     main()
