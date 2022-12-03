@@ -3,7 +3,7 @@ from PIL import Image
 MAX_BIT_VALUE = 8
 MAX_COLOR_VALUE = 256
 
-def createImage(data, img, size, wtmks):
+def createImage(data, img, size, wtmks, pos):
     #img = Image.new("RGB", size)
     #image = img.load()
     image = img.load()
@@ -12,7 +12,7 @@ def createImage(data, img, size, wtmks):
     for x in range(0, size[0]):
         for y in range(0, size[1]):
             if x < wtmks[0] and y < wtmks[1]:
-                image[x, y] = data[i]
+                image[x+pos[0], y+pos[1]] = data[i]
                 i+=1
 
     img.save("watermarkedImg.png")
@@ -49,7 +49,7 @@ def toRGB(img):
             rgb[x,y] = (temp, temp, temp)
     return RGB
 
-def waterMark(img, wtmk, bits):
+def waterMark(img, wtmk, bits, pos):
     imgx, imgy = img.size
     wtmkx, wtmky = wtmk.size
     px_in = img.load()
@@ -64,37 +64,48 @@ def waterMark(img, wtmk, bits):
     if(check_gray(px_hide)):
         wtmk = toRGB(wtmk)
         px_hide = wtmk.load()
-
+    posDict = {
+        '1': (0,0),
+        '2': (imgx - wtmkx, 0),
+        '3': (0, imgy-wtmky),
+        '4': (imgx-wtmkx, imgy-wtmky)
+    }
+    pos = posDict[pos]
+    print(pos)
     temp = []
-    for row in range(wtmkx):
-        for col in range(wtmky):
+    for row in range(wtmky):
+        for col in range(wtmkx):
             #print(px_hide[row, col])
             r, g, b = px_hide[row, col]
             r = mostSigBits(r, bits)
             g = mostSigBits(g, bits)
             b = mostSigBits(b, bits)
             
-            lr, lg, lb = px_in[row, col]
+            lr, lg, lb = px_in[row+pos[0], col+pos[1]]
             lr = delLeastSigBits(lr, bits)
             lg = delLeastSigBits(lg, bits)
             lb = delLeastSigBits(lb, bits)
 
             temp.append((lr + r, lg + g, lb + b))
+    return createImage(temp, img, (imgx, imgy),  (wtmkx, wtmky), pos)
 
-    return createImage(temp, img, (imgx, imgy),  (wtmkx, wtmky))
-
-def showWatermark(img, wtmks, bits):
-    width = img.size[0]
-    height = img.size[1]
+def showWatermark(img, wtmks, bits, pos):
+    imgx, imgy = img.size
+    wtmkx, wtmky = wtmks
     image = img.load()
 
     temp = []
+    posDict = {
+        '1': (0,0),
+        '2': (imgx - wtmkx, 0),
+        '3': (0, imgy-wtmky),
+        '4': (imgx-wtmkx, imgy-wtmky)
+    }
+    pos = posDict[pos]
+    for row in range(wtmky):
+        for col in range(wtmkx):
 
-    for row in range(wtmks[0]):
-        for col in range(wtmks[1]):
-
-            r, g, b = image[row,col]
-            
+            r, g, b = image[row+pos[0],col+pos[1]]
             r = leastSigBits(r, bits)
             g = leastSigBits(g, bits)
             b = leastSigBits(b, bits)
@@ -105,17 +116,19 @@ def showWatermark(img, wtmks, bits):
 
             temp.append((r, g, b))
 
-    return createImage(temp, img, img.size, wtmks)
+    return createImage(temp, img, img.size, wtmks, pos)
             
 def main():
-    #wtmk = Image.open("lena_gray_512.png")
-    #wtmk.convert("RGB")
-    #img = Image.open("thumbnail.png")
-    #img.convert("RGB")
-    #bits = 3
-    #encode = waterMark(img, wtmk, bits)
-    #encode.show()
-    #decode = showWatermark(encode, wtmk.size, bits)
-    #decode.show()
+    wtmk = Image.open("lena_gray_512.png")
+    wtmk.convert("RGB")
+    img = Image.open("thumbnail.png")
+    img.convert("RGB")
+    bits = 3
+    pos = '4'
+    encode = waterMark(img, wtmk, bits, pos)
+    encode.show()
+    decode = showWatermark(encode, wtmk.size, bits, pos)
+    decode.show()
     ''
-
+if __name__ == "__main__":
+    main()
