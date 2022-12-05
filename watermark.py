@@ -71,7 +71,6 @@ def waterMark(img, wtmk, bits, pos):
         '4': (imgx-wtmkx, imgy-wtmky)
     }
     pos = posDict[pos]
-    print(pos)
     temp = []
     for row in range(wtmky):
         for col in range(wtmkx):

@@ -15,6 +15,7 @@ class Application(EasyFrame):
         self.imageName = ""
         self.wmName = ""
         self.splWord = "/"
+        self.location = "1"
 
         self.blankImg = Image.new("RGB", (600,600))
         self.px_out = self.blankImg.load()
@@ -25,8 +26,6 @@ class Application(EasyFrame):
 
         self.blankImg.save("blankImg.png")
 
-        #self.imageNameText = self.addTextField("", row=0, column=0,sticky="NESW")
-        #self.wmNameText = self.addTextField("", row=1, column=0, sticky="NESW")
         self.imageNameButton = self.addButton(text="Browse for Image File", row=0, column=0,
                                             command=self.browseImgFiles)
         self.wmNameButton = self.addButton(text="Browse for Watermark File", row=1, column=0,
@@ -41,39 +40,60 @@ class Application(EasyFrame):
                                               column=2,
                                               command=self.watermarkHelper)
         self.showWMButton = self.addButton(text="Show Watermark", row=2,
-                                           column=1,
+                                           column=2,
                                            command=self.showWatermarkHelper)
-                
-        self.imageList.append(self.addLabel(text="", row=3, column=3))
+        self.locationTF = self.addTextField(text="Replace with 1,2,3, or 4 for watermark location",
+                                            row=2, column=0, sticky="NESW")
         
+        self.imageList.append(self.addLabel(text="", row=3, column=3))
         self.photo = PhotoImage(file="blankImg.png")
         self.imageList[0]["image"] = self.photo
 
+    def changeLoc(self):
+        if len(self.locationTF.getText()) == 1:
+            self.location = self.locationTF.getText()
+        else:
+            self.location = "1"
+
     def openImage(self):
-        self.photo = PhotoImage(file=self.imageName)
+        self.resized_image = Image.open(self.imageName)
+        self.resized_image.thumbnail((1000,1000), Image.Resampling.LANCZOS)
+        self.resized_image.save("ImgResize.png")
+        
+        self.photo = PhotoImage(file="ImgResize.png")
         self.imageList[0]["image"] = self.photo
 
     def watermarkHelper(self):
+        self.changeLoc()
         self.wtmk = Image.open(self.wmName)
         self.wtmk.convert("RGB")
         self.bits = 3
         self.img = Image.open(self.imageName)
 
-        watermark.waterMark(self.img, self.wtmk, self.bits)
+        watermark.waterMark(self.img, self.wtmk, self.bits, self.location)
 
-        self.photo = PhotoImage(file="watermarkedImg.png")
+        self.resized_image = Image.open("watermarkedImg.png")
+        self.resized_image.thumbnail((1000,1000), Image.Resampling.LANCZOS)
+        self.resized_image.save("ImgResize.png")
+
+        self.photo = PhotoImage(file="ImgResize.png")
         self.imageList[0]["image"] = self.photo
 
     def showWatermarkHelper(self):
+        self.changeLoc()
         self.wtmk = Image.open(self.wmName)
         self.wtmk.convert("RGB")
         self.bits = 3
         self.img = Image.open(self.imageName)
 
-        encode = watermark.waterMark(self.img, self.wtmk, self.bits)
-        watermark.showWatermark(encode, self.wtmk.size, self.bits)
+        encode = watermark.waterMark(self.img, self.wtmk, self.bits, self.location)
+        watermark.showWatermark(encode, self.wtmk.size, self.bits, self.location)
 
-        self.photo = PhotoImage(file="watermarkedImg.png")
+        self.resized_image = Image.open("watermarkedImg.png")
+        self.resized_image.thumbnail((1000,1000), Image.Resampling.LANCZOS)
+        self.resized_image.save("ImgResize.png")
+
+        self.photo = PhotoImage(file="ImgResize.png")
         self.imageList[0]["image"] = self.photo
 
     def browseImgFiles(self):
@@ -95,10 +115,8 @@ class Application(EasyFrame):
         self.imageNameLabel.configure(text="Image File: "+self.res[-1])
         self.wmNameLabel.configure(text="Watermark File: "+self.res[-1])
 
-
 def main():      
     Application().mainloop()
-    
 
 if __name__ == "__main__":
     main()
